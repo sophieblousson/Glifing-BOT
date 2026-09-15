@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Glifing Bot · Panel de control</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="glifo" aria-hidden="true"></span>
+    <div>
+      <h1>Glifing Bot</h1>
+      <div class="topbar__sub">Panel de control · Validación y escritura</div>
+    </div>
+  </div>
+  <span id="badgeModo" class="badge-modo validacion">Cargando…</span>
+</header>
+
+<div class="layout">
+
+  <!-- ================= Columna izquierda: controles ================= -->
+  <div>
+    <section class="panel">
+      <h2 class="panel__titulo">Ejecución</h2>
+
+      <label class="campo" for="selectColegio">Colegio</label>
+      <select id="selectColegio">
+        <option value="ALL">Todos los colegios</option>
+      </select>
+
+      <div class="acciones">
+        <button id="btnValidar" class="primario">Ejecutar validación</button>
+        <button id="btnEscribir" class="peligro">
+          Ejecutar y escribir
+        </button>
+        <button id="btnDetener" class="peligro" disabled>Detener</button>
+        <button id="btnLimpiarLogs" class="secundario">Limpiar logs</button>
+        <button id="btnDescargarReporte" class="secundario">Descargar último reporte</button>
+      </div>
+
+      <p class="pie-nota" id="notaEscritura">
+        "Ejecutar y escribir" modifica Google Sheets de verdad. Requiere
+        <code>DRY_RUN=false</code> en el <code>.env</code> del servidor
+        (barrera adicional). Se pide confirmación antes de arrancar.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel__titulo">Configuración detectada</h2>
+      <ul class="lista-estado" id="listaEstadoConfig">
+        <li><span class="punto warn"></span> Cargando…</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- ================= Columna derecha: logs + resultados ================= -->
+  <div>
+    <section class="panel">
+      <h2 class="panel__titulo">Estado</h2>
+      <div class="estado-run" id="estadoRun">
+        <span class="pulso"></span>
+        <span id="estadoRunTexto">Inactivo</span>
+      </div>
+      <div id="erroresGlobales"></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel__titulo">Logs en tiempo real</h2>
+      <div class="logs" id="logs"><div class="logs__vacio">Sin actividad todavía.</div></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel__titulo">Colegios procesados en esta ejecución</h2>
+      <div id="tablaColegios" class="vacio">Todavía no hay datos de esta ejecución.</div>
+    </section>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
