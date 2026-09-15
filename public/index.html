@@ -1,85 +1,445 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Glifing Bot · Panel de control</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Glifing Bot · Panel de control</title>
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  />
 </head>
+
 <body>
 
-<header class="topbar">
-  <div class="topbar__brand">
-    <span class="glifo" aria-hidden="true"></span>
-    <div>
-      <h1>Glifing Bot</h1>
-      <div class="topbar__sub">Panel de control · Validación y escritura</div>
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <header class="topbar">
+
+    <div class="topbar__left">
+
+      <div class="logos">
+
+        <img
+          src="assets/glifing-logo.png"
+          alt="Glifing"
+          class="logo logo--glifing"
+        />
+
+        <div class="divider"></div>
+
+        <img
+          src="assets/active-learning-logo.png"
+          alt="Active Learning"
+          class="logo logo--active"
+        />
+
+      </div>
+
+
+      <div class="divider divider--bot"></div>
+
+
+      <div class="bot-brand">
+
+        <div class="bot-icon">
+          <span>●</span>
+        </div>
+
+        <div>
+
+          <h1>
+            Glifing Bot
+          </h1>
+
+          <p>
+            Panel de control · Validación y escritura
+          </p>
+
+        </div>
+
+      </div>
+
     </div>
-  </div>
-  <span id="badgeModo" class="badge-modo validacion">Cargando…</span>
-</header>
 
-<div class="layout">
 
-  <!-- ================= Columna izquierda: controles ================= -->
-  <div>
-    <section class="panel">
-      <h2 class="panel__titulo">Ejecución</h2>
+    <div class="topbar__right">
 
-      <label class="campo" for="selectColegio">Colegio</label>
-      <select id="selectColegio">
-        <option value="ALL">Todos los colegios</option>
-      </select>
+      <div class="header-message">
 
-      <div class="acciones">
-        <button id="btnValidar" class="primario">Ejecutar validación</button>
-        <button id="btnEscribir" class="peligro">
-          Ejecutar y escribir
-        </button>
-        <button id="btnDetener" class="peligro" disabled>Detener</button>
-        <button id="btnLimpiarLogs" class="secundario">Limpiar logs</button>
-        <button id="btnDescargarReporte" class="secundario">Descargar último reporte</button>
+        <span>
+          Tecnología que impulsa
+        </span>
+
+        <strong>
+          el aprendizaje
+        </strong>
+
+        <div class="header-message__line"></div>
+
       </div>
 
-      <p class="pie-nota" id="notaEscritura">
-        "Ejecutar y escribir" modifica Google Sheets de verdad. Requiere
-        <code>DRY_RUN=false</code> en el <code>.env</code> del servidor
-        (barrera adicional). Se pide confirmación antes de arrancar.
-      </p>
+
+      <span
+        id="badgeModo"
+        class="badge-modo validacion"
+      >
+        <span class="badge-loader"></span>
+
+        Cargando…
+      </span>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       DASHBOARD
+       ===================================================== -->
+
+  <main class="layout">
+
+
+    <!-- ===================================================
+         COLUMNA IZQUIERDA
+         =================================================== -->
+
+    <aside class="sidebar">
+
+
+      <!-- EJECUCIÓN -->
+
+      <section class="panel panel--execution">
+
+        <div class="panel__header">
+
+          <div class="panel-icon panel-icon--green">
+            ▶
+          </div>
+
+          <h2 class="panel__titulo">
+            Ejecución
+          </h2>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="campo"
+            for="selectColegio"
+          >
+            Colegio
+          </label>
+
+          <select id="selectColegio">
+
+            <option value="ALL">
+              Todos los colegios
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="acciones">
+
+          <button
+            id="btnValidar"
+            class="btn primario"
+          >
+            <span class="btn__icon">
+              ▶
+            </span>
+
+            Ejecutar validación
+          </button>
+
+
+          <button
+            id="btnEscribir"
+            class="btn peligro"
+          >
+            <span class="btn__icon">
+              ▣
+            </span>
+
+            Ejecutar y escribir
+          </button>
+
+
+          <button
+            id="btnDetener"
+            class="btn detener"
+            disabled
+          >
+            <span class="btn__icon">
+              ■
+            </span>
+
+            Detener
+          </button>
+
+
+          <button
+            id="btnLimpiarLogs"
+            class="btn secundario"
+          >
+            <span class="btn__icon">
+              ♲
+            </span>
+
+            Limpiar logs
+          </button>
+
+
+          <button
+            id="btnDescargarReporte"
+            class="btn secundario"
+          >
+            <span class="btn__icon">
+              ↓
+            </span>
+
+            Descargar último reporte
+          </button>
+
+        </div>
+
+
+        <div
+          class="pie-nota"
+          id="notaEscritura"
+        >
+
+          <div class="info-icon">
+            i
+          </div>
+
+          <div>
+
+            <strong>
+              “Ejecutar y escribir”
+            </strong>
+
+            modifica Google Sheets de verdad.
+
+            Requiere
+            <code>DRY_RUN=false</code>
+            en el
+            <code>.env</code>
+            del servidor.
+
+            Se solicita confirmación antes de comenzar.
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- CONFIGURACIÓN -->
+
+      <section class="panel panel--config">
+
+        <div class="panel__header">
+
+          <div class="panel-icon panel-icon--blue">
+            ⚙
+          </div>
+
+          <h2 class="panel__titulo">
+            Configuración detectada
+          </h2>
+
+        </div>
+
+
+        <ul
+          class="lista-estado"
+          id="listaEstadoConfig"
+        >
+
+          <li>
+
+            <span class="punto warn"></span>
+
+            Cargando…
+
+          </li>
+
+        </ul>
+
+      </section>
+
+
+    </aside>
+
+
+
+    <!-- ===================================================
+         COLUMNA DERECHA
+         =================================================== -->
+
+    <section class="main-content">
+
+
+      <!-- ESTADO -->
+
+      <section class="panel estado-panel">
+
+        <div class="panel__header">
+
+          <div class="panel-icon panel-icon--green">
+            ∿
+          </div>
+
+          <h2 class="panel__titulo">
+            Estado
+          </h2>
+
+        </div>
+
+
+        <div
+          class="estado-run"
+          id="estadoRun"
+        >
+
+          <span class="pulso"></span>
+
+          <span id="estadoRunTexto">
+            Inactivo
+          </span>
+
+        </div>
+
+
+        <div id="erroresGlobales"></div>
+
+      </section>
+
+
+
+      <!-- LOGS -->
+
+      <section class="panel logs-panel">
+
+        <div class="panel__header panel__header--between">
+
+          <div class="panel__header-left">
+
+            <div class="panel-icon panel-icon--blue">
+              ▤
+            </div>
+
+            <h2 class="panel__titulo">
+              Logs en tiempo real
+            </h2>
+
+          </div>
+
+
+          <div class="live-label">
+
+            <span class="live-dot"></span>
+
+            Actualización en tiempo real
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="logs"
+          id="logs"
+        >
+
+          <div class="logs__vacio">
+
+            <span class="log-line-number">
+              1
+            </span>
+
+            <span>
+              Sin actividad todavía.
+            </span>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- COLEGIOS -->
+
+      <section class="panel processed-panel">
+
+        <div class="panel__header">
+
+          <div class="panel-icon panel-icon--blue">
+            ●●
+          </div>
+
+          <h2 class="panel__titulo">
+            Colegios procesados en esta ejecución
+          </h2>
+
+        </div>
+
+
+        <div
+          id="tablaColegios"
+          class="vacio"
+        >
+
+          <div class="empty-icon">
+            ▥
+          </div>
+
+
+          <strong>
+            Todavía no hay datos de esta ejecución.
+          </strong>
+
+
+          <span>
+            Los resultados aparecerán aquí una vez que ejecutes la validación.
+          </span>
+
+        </div>
+
+      </section>
+
+
     </section>
 
-    <section class="panel">
-      <h2 class="panel__titulo">Configuración detectada</h2>
-      <ul class="lista-estado" id="listaEstadoConfig">
-        <li><span class="punto warn"></span> Cargando…</li>
-      </ul>
-    </section>
-  </div>
 
-  <!-- ================= Columna derecha: logs + resultados ================= -->
-  <div>
-    <section class="panel">
-      <h2 class="panel__titulo">Estado</h2>
-      <div class="estado-run" id="estadoRun">
-        <span class="pulso"></span>
-        <span id="estadoRunTexto">Inactivo</span>
-      </div>
-      <div id="erroresGlobales"></div>
-    </section>
+  </main>
 
-    <section class="panel">
-      <h2 class="panel__titulo">Logs en tiempo real</h2>
-      <div class="logs" id="logs"><div class="logs__vacio">Sin actividad todavía.</div></div>
-    </section>
 
-    <section class="panel">
-      <h2 class="panel__titulo">Colegios procesados en esta ejecución</h2>
-      <div id="tablaColegios" class="vacio">Todavía no hay datos de esta ejecución.</div>
-    </section>
-  </div>
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
 
-</div>
+  <script src="app.js"></script>
 
-<script src="app.js"></script>
 </body>
+
 </html>
