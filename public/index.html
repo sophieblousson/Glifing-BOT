@@ -3,9 +3,15 @@
 
 <head>
   <meta charset="UTF-8" />
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="description"
+    content="Panel de control para validación y seguimiento de Glifing en Active Learning."
   />
 
   <title>Glifing Bot · Panel de control</title>
@@ -15,6 +21,7 @@
     href="styles.css"
   />
 </head>
+
 
 <body>
 
@@ -26,6 +33,8 @@
 
     <div class="topbar__left">
 
+      <!-- Logos institucionales -->
+
       <div class="logos">
 
         <img
@@ -34,7 +43,10 @@
           class="logo logo--glifing"
         />
 
-        <div class="divider"></div>
+        <div
+          class="divider"
+          aria-hidden="true"
+        ></div>
 
         <img
           src="assets/active-learning-logo.png"
@@ -45,12 +57,20 @@
       </div>
 
 
-      <div class="divider divider--bot"></div>
+      <div
+        class="divider divider--bot"
+        aria-hidden="true"
+      ></div>
 
+
+      <!-- Identidad del bot -->
 
       <div class="bot-brand">
 
-        <div class="bot-icon">
+        <div
+          class="bot-icon"
+          aria-hidden="true"
+        >
           <span>●</span>
         </div>
 
@@ -71,19 +91,24 @@
     </div>
 
 
+    <!-- Área derecha del header -->
+
     <div class="topbar__right">
 
       <div class="header-message">
 
         <span>
-          Tecnología que impulsa
+          Seguimiento inteligente
         </span>
 
         <strong>
-          el aprendizaje
+          para mejores decisiones
         </strong>
 
-        <div class="header-message__line"></div>
+        <div
+          class="header-message__line"
+          aria-hidden="true"
+        ></div>
 
       </div>
 
@@ -91,15 +116,22 @@
       <span
         id="badgeModo"
         class="badge-modo validacion"
+        aria-live="polite"
       >
-        <span class="badge-loader"></span>
+
+        <span
+          class="badge-loader"
+          aria-hidden="true"
+        ></span>
 
         Cargando…
+
       </span>
 
     </div>
 
   </header>
+
 
 
   <!-- =====================================================
@@ -116,13 +148,18 @@
     <aside class="sidebar">
 
 
-      <!-- EJECUCIÓN -->
+      <!-- =================================================
+           EJECUCIÓN
+           ================================================= -->
 
       <section class="panel panel--execution">
 
         <div class="panel__header">
 
-          <div class="panel-icon panel-icon--green">
+          <div
+            class="panel-icon panel-icon--green"
+            aria-hidden="true"
+          >
             ▶
           </div>
 
@@ -133,6 +170,8 @@
         </div>
 
 
+        <!-- Selector de colegio -->
+
         <div class="form-group">
 
           <label
@@ -142,7 +181,10 @@
             Colegio
           </label>
 
-          <select id="selectColegio">
+          <select
+            id="selectColegio"
+            name="colegio"
+          >
 
             <option value="ALL">
               Todos los colegios
@@ -153,79 +195,127 @@
         </div>
 
 
+        <!-- Acciones -->
+
         <div class="acciones">
 
           <button
             id="btnValidar"
             class="btn primario"
+            type="button"
           >
-            <span class="btn__icon">
+
+            <span
+              class="btn__icon"
+              aria-hidden="true"
+            >
               ▶
             </span>
 
-            Ejecutar validación
+            <span>
+              Ejecutar validación
+            </span>
+
           </button>
 
 
           <button
             id="btnEscribir"
             class="btn peligro"
+            type="button"
           >
-            <span class="btn__icon">
+
+            <span
+              class="btn__icon"
+              aria-hidden="true"
+            >
               ▣
             </span>
 
-            Ejecutar y escribir
+            <span>
+              Ejecutar y escribir
+            </span>
+
           </button>
 
 
           <button
             id="btnDetener"
             class="btn detener"
+            type="button"
             disabled
           >
-            <span class="btn__icon">
+
+            <span
+              class="btn__icon"
+              aria-hidden="true"
+            >
               ■
             </span>
 
-            Detener
+            <span>
+              Detener
+            </span>
+
           </button>
 
 
           <button
             id="btnLimpiarLogs"
             class="btn secundario"
+            type="button"
           >
-            <span class="btn__icon">
+
+            <span
+              class="btn__icon"
+              aria-hidden="true"
+            >
               ♲
             </span>
 
-            Limpiar logs
+            <span>
+              Limpiar logs
+            </span>
+
           </button>
 
 
           <button
             id="btnDescargarReporte"
             class="btn secundario"
+            type="button"
           >
-            <span class="btn__icon">
+
+            <span
+              class="btn__icon"
+              aria-hidden="true"
+            >
               ↓
             </span>
 
-            Descargar último reporte
+            <span>
+              Descargar último reporte
+            </span>
+
           </button>
 
         </div>
 
+
+        <!-- Advertencia de escritura -->
 
         <div
           class="pie-nota"
           id="notaEscritura"
         >
 
-          <div class="info-icon">
+          <div
+            class="info-icon"
+            aria-hidden="true"
+          >
             i
           </div>
+
 
           <div>
 
@@ -233,12 +323,20 @@
               “Ejecutar y escribir”
             </strong>
 
-            modifica Google Sheets de verdad.
+            modifica Google Sheets de forma real.
 
             Requiere
-            <code>DRY_RUN=false</code>
+
+            <code>
+              DRY_RUN=false
+            </code>
+
             en el
-            <code>.env</code>
+
+            <code>
+              .env
+            </code>
+
             del servidor.
 
             Se solicita confirmación antes de comenzar.
@@ -251,13 +349,18 @@
 
 
 
-      <!-- CONFIGURACIÓN -->
+      <!-- =================================================
+           CONFIGURACIÓN
+           ================================================= -->
 
       <section class="panel panel--config">
 
         <div class="panel__header">
 
-          <div class="panel-icon panel-icon--blue">
+          <div
+            class="panel-icon panel-icon--blue"
+            aria-hidden="true"
+          >
             ⚙
           </div>
 
@@ -271,11 +374,15 @@
         <ul
           class="lista-estado"
           id="listaEstadoConfig"
+          aria-live="polite"
         >
 
           <li>
 
-            <span class="punto warn"></span>
+            <span
+              class="punto warn"
+              aria-hidden="true"
+            ></span>
 
             Cargando…
 
@@ -284,7 +391,6 @@
         </ul>
 
       </section>
-
 
     </aside>
 
@@ -297,13 +403,18 @@
     <section class="main-content">
 
 
-      <!-- ESTADO -->
+      <!-- =================================================
+           ESTADO
+           ================================================= -->
 
       <section class="panel estado-panel">
 
         <div class="panel__header">
 
-          <div class="panel-icon panel-icon--green">
+          <div
+            class="panel-icon panel-icon--green"
+            aria-hidden="true"
+          >
             ∿
           </div>
 
@@ -317,9 +428,13 @@
         <div
           class="estado-run"
           id="estadoRun"
+          aria-live="polite"
         >
 
-          <span class="pulso"></span>
+          <span
+            class="pulso"
+            aria-hidden="true"
+          ></span>
 
           <span id="estadoRunTexto">
             Inactivo
@@ -328,21 +443,30 @@
         </div>
 
 
-        <div id="erroresGlobales"></div>
+        <div
+          id="erroresGlobales"
+          aria-live="assertive"
+        ></div>
 
       </section>
 
 
 
-      <!-- LOGS -->
+      <!-- =================================================
+           LOGS
+           ================================================= -->
 
       <section class="panel logs-panel">
 
         <div class="panel__header panel__header--between">
 
+
           <div class="panel__header-left">
 
-            <div class="panel-icon panel-icon--blue">
+            <div
+              class="panel-icon panel-icon--blue"
+              aria-hidden="true"
+            >
               ▤
             </div>
 
@@ -355,9 +479,14 @@
 
           <div class="live-label">
 
-            <span class="live-dot"></span>
+            <span
+              class="live-dot"
+              aria-hidden="true"
+            ></span>
 
-            Actualización en tiempo real
+            <span>
+              Actualización en tiempo real
+            </span>
 
           </div>
 
@@ -367,11 +496,17 @@
         <div
           class="logs"
           id="logs"
+          role="log"
+          aria-live="polite"
+          aria-label="Logs de ejecución"
         >
 
           <div class="logs__vacio">
 
-            <span class="log-line-number">
+            <span
+              class="log-line-number"
+              aria-hidden="true"
+            >
               1
             </span>
 
@@ -387,13 +522,18 @@
 
 
 
-      <!-- COLEGIOS -->
+      <!-- =================================================
+           COLEGIOS PROCESADOS
+           ================================================= -->
 
       <section class="panel processed-panel">
 
         <div class="panel__header">
 
-          <div class="panel-icon panel-icon--blue">
+          <div
+            class="panel-icon panel-icon--blue"
+            aria-hidden="true"
+          >
             ●●
           </div>
 
@@ -407,9 +547,13 @@
         <div
           id="tablaColegios"
           class="vacio"
+          aria-live="polite"
         >
 
-          <div class="empty-icon">
+          <div
+            class="empty-icon"
+            aria-hidden="true"
+          >
             ▥
           </div>
 
@@ -430,8 +574,8 @@
 
     </section>
 
-
   </main>
+
 
 
   <!-- =====================================================
