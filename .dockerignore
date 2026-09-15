@@ -1,0 +1,9 @@
+node_modules
+.env
+service-account.json
+debug/screenshots
+debug/html
+debug/reports
+debug/logs
+.git
+npm-debug.log*

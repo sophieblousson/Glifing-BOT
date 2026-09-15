@@ -1,0 +1,19 @@
+node_modules/
+.env
+service-account.json
+*.pem
+*.key
+
+# Evidencia y reportes locales (contienen nombres de alumnos - dato sensible)
+debug/screenshots/*
+debug/html/*
+debug/reports/*
+debug/logs/*
+!debug/screenshots/.gitkeep
+!debug/html/.gitkeep
+!debug/reports/.gitkeep
+!debug/logs/.gitkeep
+
+npm-debug.log*
+.DS_Store
+Thumbs.db

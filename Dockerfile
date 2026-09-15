@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/playwright:v1.55.0-noble
+
+WORKDIR /app
+
+COPY package.json ./
+RUN npm install --omit=dev
+
+COPY public ./public
+COPY src ./src
+COPY server.js ./server.js
+
+RUN mkdir -p debug/screenshots debug/html debug/reports debug/logs
+
+ENV NODE_ENV=production
+ENV HEADLESS=true
+ENV PORT=10000
+
+EXPOSE 10000
+
+CMD ["npm", "start"]

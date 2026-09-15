@@ -1,0 +1,22 @@
+{
+  "name": "glifing-bot",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Panel web de seguimiento y actualización de Glifing para Active Learning",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "audit:dashboards": "node src/auditarDashboards.js",
+    "repair:dashboards": "node src/repararFormulasDashboard.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "googleapis": "^144.0.0",
+    "luxon": "^3.7.2",
+    "playwright": "^1.48.2"
+  }
+}
