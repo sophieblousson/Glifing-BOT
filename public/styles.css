@@ -1498,5 +1498,367 @@ code {
       none;
 
   }
+/* ==========================================================
+   AJUSTES FINALES DE DISEÑO
+   Pegá este bloque AL FINAL de styles.css
+   ========================================================== */
 
+
+/* ---------- HEADER MÁS COMPACTO Y PREMIUM ---------- */
+
+.topbar {
+  min-height: 94px;
+  padding: 0 46px;
+}
+
+.bot-brand h1 {
+  font-size: 27px;
+  letter-spacing: -0.6px;
+}
+
+.bot-brand p {
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+
+/* ---------- LOGOS ---------- */
+
+.brand-logo-box {
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* Glifing puede quedar directamente sobre el azul */
+
+.logo--glifing {
+  max-width: 170px;
+  max-height: 55px;
+}
+
+
+/* Active Learning necesita fondo claro porque su tipografía es negra */
+
+.brand-logo-box:has(.logo--active) {
+  background: rgba(255,255,255,0.96);
+
+  padding: 7px 14px;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.08);
+}
+
+.logo--active {
+  max-width: 175px;
+  max-height: 44px;
+}
+
+
+/* ---------- BOT ICON ---------- */
+
+.bot-icon {
+  width: 57px;
+  height: 57px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #22a783,
+      #97bf0d
+    );
+
+  box-shadow:
+    0 6px 18px
+    rgba(0, 0, 0, 0.16);
+}
+
+
+/* ---------- FONDO GENERAL ---------- */
+
+body {
+  background:
+    radial-gradient(
+      circle at 75% 0%,
+      rgba(5,91,170,0.05),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      #f7fafb 0%,
+      #f1f5f6 100%
+    );
+}
+
+
+/* ---------- LAYOUT ---------- */
+
+.layout {
+  padding-top: 30px;
+
+  grid-template-columns:
+    410px
+    minmax(0, 1fr);
+
+  gap: 30px;
+}
+
+
+/* ---------- CARDS MÁS LIMPIAS ---------- */
+
+.panel {
+  border:
+    1px solid
+    rgba(208,220,227,0.9);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 7px 24px
+    rgba(21,55,77,0.065);
+}
+
+
+.panel:hover {
+  box-shadow:
+    0 9px 28px
+    rgba(21,55,77,0.085);
+}
+
+
+/* ---------- TÍTULOS ---------- */
+
+.panel__titulo {
+  font-size: 14px;
+
+  letter-spacing:
+    0.045em;
+}
+
+
+/* ---------- SELECT ---------- */
+
+select {
+  height: 54px;
+
+  padding-left: 20px;
+
+  font-size: 15px;
+
+  border-radius: 10px;
+}
+
+
+/* ---------- BOTONES ---------- */
+
+.btn {
+  min-height: 56px;
+
+  padding:
+    0 20px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  letter-spacing: -0.1px;
+}
+
+
+.primario {
+  background:
+    linear-gradient(
+      135deg,
+      #14795f,
+      #21a17e
+    );
+
+  box-shadow:
+    0 5px 16px
+    rgba(22,133,108,0.18);
+}
+
+
+.primario:hover {
+  box-shadow:
+    0 8px 22px
+    rgba(22,133,108,0.24);
+}
+
+
+.peligro {
+  border-width: 1.5px;
+}
+
+
+.secundario {
+  border-color: #bfd2df;
+}
+
+
+/* ---------- MENSAJE INFORMATIVO ---------- */
+
+.pie-nota {
+  margin-top: 17px;
+
+  padding: 14px 15px;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef6fb,
+      #f8fbfd
+    );
+
+  line-height: 1.6;
+}
+
+
+/* ---------- CARD ESTADO MÁS COMPACTA ---------- */
+
+.estado-panel {
+  min-height: 145px;
+
+  padding: 27px;
+}
+
+.estado-run {
+  margin-top: 7px;
+
+  font-size: 15px;
+}
+
+
+/* ---------- LOGS ---------- */
+
+.logs-panel {
+  padding: 26px;
+}
+
+
+/*
+  Antes era demasiado alto.
+  Esto permite ver también "Colegios procesados"
+  sin tener que bajar tanto.
+*/
+
+.logs {
+  min-height: 310px;
+  max-height: 430px;
+
+  padding: 22px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #101d27,
+      #132735
+    );
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255,255,255,0.04),
+    0 8px 20px
+    rgba(7,25,36,0.08);
+}
+
+
+/* ---------- INDICADOR EN VIVO ---------- */
+
+.live-dot {
+  position: relative;
+}
+
+.live-dot::after {
+  content: "";
+
+  position: absolute;
+
+  inset: -4px;
+
+  border:
+    1px solid
+    rgba(22,133,108,0.3);
+
+  border-radius: 50%;
+
+  animation:
+    livePulse
+    1.7s ease-out
+    infinite;
+}
+
+@keyframes livePulse {
+
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+
+}
+
+
+/* ---------- CARD DE RESULTADOS ---------- */
+
+.processed-panel {
+  padding: 26px;
+}
+
+.vacio {
+  min-height: 155px;
+
+  border:
+    1px dashed
+    #d6e1e8;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fbfcfd,
+      #f5f8fa
+    );
+}
+
+
+/* ---------- BADGE SUPERIOR ---------- */
+
+.badge-modo {
+  padding:
+    11px 18px;
+
+  min-width: 137px;
+
+  box-shadow:
+    0 4px 13px
+    rgba(0,0,0,0.08);
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1200px) {
+
+  .layout {
+    grid-template-columns:
+      350px
+      minmax(0,1fr);
+  }
+
+}
 }
