@@ -1,589 +1,230 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <meta
-    name="description"
-    content="Panel de control para validación y seguimiento de Glifing en Active Learning."
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panel de control para validación y seguimiento de Glifing en Active Learning." />
   <title>Glifing Bot · Panel de control</title>
-
-  <link
-    rel="stylesheet"
-    href="styles.css"
-  />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
-
 <body>
 
-  <!-- =====================================================
-       HEADER
-       ===================================================== -->
-
   <header class="topbar">
-
-    <div class="topbar__left">
-
-      <!-- Logos institucionales -->
-
-      <div class="logos">
-
-        <img
-          src="assets/glifing-logo.png"
-          alt="Glifing"
-          class="logo logo--glifing"
-        />
-
-        <div
-          class="divider"
-          aria-hidden="true"
-        ></div>
-
-        <img
-          src="assets/active-learning-logo.png"
-          alt="Active Learning"
-          class="logo logo--active"
-        />
-
+    <div class="topbar__brand">
+      <div class="logos" aria-label="Glifing y Active Learning">
+        <img src="assets/glifing-logo.png" alt="Glifing" class="logo logo--glifing" />
+        <span class="brand-divider" aria-hidden="true"></span>
+        <img src="assets/active-learning-logo.png" alt="Active Learning" class="logo logo--active" />
       </div>
 
-
-      <div
-        class="divider divider--bot"
-        aria-hidden="true"
-      ></div>
-
-
-      <!-- Identidad del bot -->
+      <span class="brand-divider brand-divider--bot" aria-hidden="true"></span>
 
       <div class="bot-brand">
-
-        <div
-          class="bot-icon"
-          aria-hidden="true"
-        >
-          <span>●</span>
+        <div class="bot-avatar" aria-hidden="true">
+          <span class="bot-antenna"></span>
+          <span class="bot-face"><i></i><i></i></span>
         </div>
-
         <div>
-
-          <h1>
-            Glifing Bot
-          </h1>
-
-          <p>
-            Panel de control · Validación y escritura
-          </p>
-
+          <h1>Glifing Bot</h1>
+          <p>Panel de control · Validación y escritura</p>
         </div>
-
       </div>
-
     </div>
 
-
-    <!-- Área derecha del header -->
-
-    <div class="topbar__right">
-
-      <div class="header-message">
-
-        <span>
-          Seguimiento inteligente
-        </span>
-
-        <strong>
-          para mejores decisiones
-        </strong>
-
-        <div
-          class="header-message__line"
-          aria-hidden="true"
-        ></div>
-
+    <div class="topbar__actions">
+      <div class="purpose-card" aria-label="Propósito del panel">
+        <div class="purpose-icon">↗</div>
+        <div>
+          <span>Seguimiento inteligente</span>
+          <strong>para mejores decisiones</strong>
+          <div class="purpose-line"></div>
+        </div>
       </div>
 
+      <span id="badgeModo" class="badge-modo validacion" aria-live="polite">Cargando…</span>
 
-      <span
-        id="badgeModo"
-        class="badge-modo validacion"
-        aria-live="polite"
-      >
-
-        <span
-          class="badge-loader"
-          aria-hidden="true"
-        ></span>
-
-        Cargando…
-
-      </span>
-
+      <div class="profile">
+        <div class="profile__avatar">SB</div>
+        <div class="profile__copy">
+          <strong>Sophie Blousson</strong>
+          <span>Administradora</span>
+        </div>
+        <span class="profile__chevron">⌄</span>
+      </div>
     </div>
-
   </header>
 
-
-
-  <!-- =====================================================
-       DASHBOARD
-       ===================================================== -->
-
-  <main class="layout">
-
-
-    <!-- ===================================================
-         COLUMNA IZQUIERDA
-         =================================================== -->
-
+  <main class="dashboard">
     <aside class="sidebar">
-
-
-      <!-- =================================================
-           EJECUCIÓN
-           ================================================= -->
-
-      <section class="panel panel--execution">
-
-        <div class="panel__header">
-
-          <div
-            class="panel-icon panel-icon--green"
-            aria-hidden="true"
-          >
-            ▶
+      <section class="execution-card">
+        <div class="section-heading">
+          <div class="section-icon section-icon--green">▶</div>
+          <div>
+            <h2>Ejecución</h2>
+            <p>Validá, ejecutá y gestioná procesos en todos los colegios.</p>
           </div>
-
-          <h2 class="panel__titulo">
-            Ejecución
-          </h2>
-
         </div>
-
-
-        <!-- Selector de colegio -->
 
         <div class="form-group">
-
-          <label
-            class="campo"
-            for="selectColegio"
-          >
-            Colegio
-          </label>
-
-          <select
-            id="selectColegio"
-            name="colegio"
-          >
-
-            <option value="ALL">
-              Todos los colegios
-            </option>
-
+          <label for="selectColegio">Colegio</label>
+          <select id="selectColegio" name="colegio">
+            <option value="ALL">Todos los colegios</option>
           </select>
-
         </div>
 
-
-        <!-- Acciones -->
-
-        <div class="acciones">
-
-          <button
-            id="btnValidar"
-            class="btn primario"
-            type="button"
-          >
-
-            <span
-              class="btn__icon"
-              aria-hidden="true"
-            >
-              ▶
-            </span>
-
-            <span>
-              Ejecutar validación
-            </span>
-
+        <div class="actions-stack">
+          <button id="btnValidar" class="btn btn--primary" type="button">
+            <span class="btn__icon">▶</span><span>Ejecutar validación</span>
           </button>
 
-
-          <button
-            id="btnEscribir"
-            class="btn peligro"
-            type="button"
-          >
-
-            <span
-              class="btn__icon"
-              aria-hidden="true"
-            >
-              ▣
-            </span>
-
-            <span>
-              Ejecutar y escribir
-            </span>
-
+          <button id="btnEscribir" class="btn btn--danger-outline" type="button">
+            <span class="btn__icon">▣</span><span>Ejecutar y escribir</span>
           </button>
 
-
-          <button
-            id="btnDetener"
-            class="btn detener"
-            type="button"
-            disabled
-          >
-
-            <span
-              class="btn__icon"
-              aria-hidden="true"
-            >
-              ■
-            </span>
-
-            <span>
-              Detener
-            </span>
-
+          <button id="btnDetener" class="btn btn--stop" type="button" disabled>
+            <span class="btn__icon">■</span><span>Detener</span>
           </button>
 
-
-          <button
-            id="btnLimpiarLogs"
-            class="btn secundario"
-            type="button"
-          >
-
-            <span
-              class="btn__icon"
-              aria-hidden="true"
-            >
-              ♲
-            </span>
-
-            <span>
-              Limpiar logs
-            </span>
-
+          <button id="btnLimpiarLogs" class="btn btn--secondary" type="button">
+            <span class="btn__icon">⌫</span><span>Limpiar logs</span>
           </button>
 
-
-          <button
-            id="btnDescargarReporte"
-            class="btn secundario"
-            type="button"
-          >
-
-            <span
-              class="btn__icon"
-              aria-hidden="true"
-            >
-              ↓
-            </span>
-
-            <span>
-              Descargar último reporte
-            </span>
-
+          <button id="btnDescargarReporte" class="btn btn--secondary" type="button">
+            <span class="btn__icon">↓</span><span>Descargar último reporte</span>
           </button>
-
         </div>
 
-
-        <!-- Advertencia de escritura -->
-
-        <div
-          class="pie-nota"
-          id="notaEscritura"
-        >
-
-          <div
-            class="info-icon"
-            aria-hidden="true"
-          >
-            i
-          </div>
-
-
-          <div>
-
-            <strong>
-              “Ejecutar y escribir”
-            </strong>
-
-            modifica Google Sheets de forma real.
-
-            Requiere
-
-            <code>
-              DRY_RUN=false
-            </code>
-
-            en el
-
-            <code>
-              .env
-            </code>
-
-            del servidor.
-
-            Se solicita confirmación antes de comenzar.
-
-          </div>
-
+        <div class="safety-note" id="notaEscritura">
+          <div class="info-badge">i</div>
+          <p><strong>“Ejecutar y escribir”</strong> modifica Google Sheets de forma real. Requiere <code>DRY_RUN=false</code> y confirmación antes de comenzar.</p>
         </div>
 
+        <details class="config-details">
+          <summary>Configuración detectada</summary>
+          <ul class="lista-estado" id="listaEstadoConfig">
+            <li><span class="punto warn"></span>Cargando…</li>
+          </ul>
+        </details>
       </section>
 
-
-
-      <!-- =================================================
-           CONFIGURACIÓN
-           ================================================= -->
-
-      <section class="panel panel--config">
-
-        <div class="panel__header">
-
-          <div
-            class="panel-icon panel-icon--blue"
-            aria-hidden="true"
-          >
-            ⚙
-          </div>
-
-          <h2 class="panel__titulo">
-            Configuración detectada
-          </h2>
-
-        </div>
-
-
-        <ul
-          class="lista-estado"
-          id="listaEstadoConfig"
-          aria-live="polite"
-        >
-
-          <li>
-
-            <span
-              class="punto warn"
-              aria-hidden="true"
-            ></span>
-
-            Cargando…
-
-          </li>
-
-        </ul>
-
-      </section>
-
+      <div class="sidebar-decoration" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
     </aside>
 
-
-
-    <!-- ===================================================
-         COLUMNA DERECHA
-         =================================================== -->
-
     <section class="main-content">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <span class="eyebrow">Hola, Sophie</span>
+          <h2>¡Todo listo para seguir avanzando!</h2>
+          <p>Gestioná las validaciones de Glifing de forma simple, clara y segura.</p>
+        </div>
 
-
-      <!-- =================================================
-           ESTADO
-           ================================================= -->
-
-      <section class="panel estado-panel">
-
-        <div class="panel__header">
-
-          <div
-            class="panel-icon panel-icon--green"
-            aria-hidden="true"
-          >
-            ∿
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-message">
+            <span>Más lectura,</span>
+            <strong>más oportunidades</strong>
+            <i></i>
           </div>
-
-          <h2 class="panel__titulo">
-            Estado
-          </h2>
-
-        </div>
-
-
-        <div
-          class="estado-run"
-          id="estadoRun"
-          aria-live="polite"
-        >
-
-          <span
-            class="pulso"
-            aria-hidden="true"
-          ></span>
-
-          <span id="estadoRunTexto">
-            Inactivo
-          </span>
-
-        </div>
-
-
-        <div
-          id="erroresGlobales"
-          aria-live="assertive"
-        ></div>
-
-      </section>
-
-
-
-      <!-- =================================================
-           LOGS
-           ================================================= -->
-
-      <section class="panel logs-panel">
-
-        <div class="panel__header panel__header--between">
-
-
-          <div class="panel__header-left">
-
-            <div
-              class="panel-icon panel-icon--blue"
-              aria-hidden="true"
-            >
-              ▤
+          <div class="robot">
+            <div class="robot__antenna"><span></span></div>
+            <div class="robot__ear robot__ear--left"></div>
+            <div class="robot__ear robot__ear--right"></div>
+            <div class="robot__head">
+              <div class="robot__screen"><i></i><i></i></div>
             </div>
-
-            <h2 class="panel__titulo">
-              Logs en tiempo real
-            </h2>
-
+            <span class="robot__spark robot__spark--1">✓</span>
+            <span class="robot__spark robot__spark--2"></span>
+            <span class="robot__spark robot__spark--3"></span>
           </div>
-
-
-          <div class="live-label">
-
-            <span
-              class="live-dot"
-              aria-hidden="true"
-            ></span>
-
-            <span>
-              Actualización en tiempo real
-            </span>
-
-          </div>
-
         </div>
-
-
-        <div
-          class="logs"
-          id="logs"
-          role="log"
-          aria-live="polite"
-          aria-label="Logs de ejecución"
-        >
-
-          <div class="logs__vacio">
-
-            <span
-              class="log-line-number"
-              aria-hidden="true"
-            >
-              1
-            </span>
-
-            <span>
-              Sin actividad todavía.
-            </span>
-
-          </div>
-
-        </div>
-
       </section>
 
-
-
-      <!-- =================================================
-           COLEGIOS PROCESADOS
-           ================================================= -->
-
-      <section class="panel processed-panel">
-
-        <div class="panel__header">
-
-          <div
-            class="panel-icon panel-icon--blue"
-            aria-hidden="true"
-          >
-            ●●
+      <section class="kpi-grid" aria-label="Resumen de actividad">
+        <article class="kpi-card">
+          <div class="kpi-icon kpi-icon--blue">▤</div>
+          <div>
+            <span class="kpi-label">Colegios configurados</span>
+            <strong id="kpiColegios">—</strong>
           </div>
+        </article>
 
-          <h2 class="panel__titulo">
-            Colegios procesados en esta ejecución
-          </h2>
-
-        </div>
-
-
-        <div
-          id="tablaColegios"
-          class="vacio"
-          aria-live="polite"
-        >
-
-          <div
-            class="empty-icon"
-            aria-hidden="true"
-          >
-            ▥
+        <article class="kpi-card">
+          <div class="kpi-icon kpi-icon--green">✓</div>
+          <div>
+            <span class="kpi-label">Última ejecución</span>
+            <strong id="kpiUltimaEjecucion">Sin datos</strong>
+            <small id="kpiUltimaHora">—</small>
           </div>
+        </article>
 
+        <article class="kpi-card">
+          <div class="kpi-icon kpi-icon--yellow">▧</div>
+          <div>
+            <span class="kpi-label">Colegios procesados</span>
+            <strong id="kpiProcesados">0</strong>
+          </div>
+        </article>
 
-          <strong>
-            Todavía no hay datos de esta ejecución.
-          </strong>
-
-
-          <span>
-            Los resultados aparecerán aquí una vez que ejecutes la validación.
-          </span>
-
-        </div>
-
+        <article class="kpi-card kpi-card--status" id="kpiStatusCard">
+          <div class="kpi-icon kpi-icon--red" id="kpiStatusIcon">◷</div>
+          <div class="kpi-status-copy">
+            <span class="kpi-label">Estado actual</span>
+            <strong id="kpiEstado">Inactivo</strong>
+            <small id="kpiEstadoSub"><span class="status-dot"></span>Sin ejecución activa</small>
+          </div>
+        </article>
       </section>
 
+      <div id="estadoRun" class="status-accessible" aria-live="polite">
+        <span class="pulso" aria-hidden="true"></span>
+        <span id="estadoRunTexto">Inactivo</span>
+      </div>
 
+      <div id="erroresGlobales" class="global-errors" aria-live="assertive"></div>
+
+      <section class="content-card logs-card">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <div class="section-icon section-icon--blue">▣</div>
+            <h2>Logs en tiempo real</h2>
+          </div>
+
+          <div class="card-header__actions">
+            <div class="live-label"><span class="live-dot"></span>Actualización en tiempo real</div>
+            <button id="btnLimpiarLogsTop" class="mini-btn" type="button">⌫&nbsp;&nbsp;Limpiar</button>
+          </div>
+        </div>
+
+        <div class="logs" id="logs" role="log" aria-live="polite" aria-label="Logs de ejecución">
+          <div class="logs__vacio">Sin actividad todavía.</div>
+        </div>
+      </section>
+
+      <section class="content-card processed-card">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <div class="section-icon section-icon--blue">●●</div>
+            <h2>Colegios procesados en esta ejecución</h2>
+          </div>
+          <button id="btnVerReporte" class="mini-btn" type="button">▥&nbsp;&nbsp;Ver reporte completo</button>
+        </div>
+
+        <div id="tablaColegios" class="processed-content" aria-live="polite">
+          <div class="empty-state">
+            <div class="empty-state__icon">▤</div>
+            <strong>Todavía no hay datos de esta ejecución.</strong>
+            <span>Cuando se procesen colegios, vas a ver el detalle acá.</span>
+          </div>
+        </div>
+
+        <div class="processed-signature" aria-hidden="true">
+          <span>Aprender</span><strong>también es crecer</strong><i></i>
+        </div>
+      </section>
     </section>
-
   </main>
 
-
-
-  <!-- =====================================================
-       JAVASCRIPT
-       ===================================================== -->
-
   <script src="app.js"></script>
-
 </body>
-
 </html>
