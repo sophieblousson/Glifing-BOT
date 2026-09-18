@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "api/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    { "source": "/", "destination": "/public/index.html" },
+    { "source": "/styles.css", "destination": "/public/styles.css" },
+    { "source": "/app.js", "destination": "/public/app.js" },
+    { "source": "/assets/(.*)", "destination": "/public/assets/$1" }
+  ]
+}
