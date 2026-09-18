@@ -55,8 +55,11 @@ jobs:
       - name: Instalar dependencias
         run: npm install --omit=dev --no-audit --no-fund
 
+      - name: Verificar Playwright
+        run: npx playwright --version
+
       - name: Instalar Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Ejecutar Glifing Bot
         run: node src/actionRunner.js
