@@ -1,0 +1,60 @@
+name: Glifing Bot
+
+run-name: Glifing · ${{ inputs.mode }} · ${{ inputs.colegio }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      colegio:
+        description: Colegio o ALL
+        required: true
+        default: ALL
+        type: string
+      mode:
+        description: Modo de ejecución
+        required: true
+        default: validate
+        type: choice
+        options:
+          - validate
+          - write
+
+concurrency:
+  group: glifing-bot
+  cancel-in-progress: false
+
+jobs:
+  ejecutar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+
+    env:
+      GLIFING_USER: ${{ secrets.GLIFING_USER }}
+      GLIFING_PASSWORD: ${{ secrets.GLIFING_PASSWORD }}
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      COLEGIO: ${{ inputs.colegio }}
+      RUN_MODE: ${{ inputs.mode }}
+      HEADLESS: "true"
+      TZ_REPORTES: America/Argentina/Buenos_Aires
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias
+        run: npm install --omit=dev
+
+      - name: Ejecutar Glifing Bot
+        run: node src/actionRunner.js
+
+      - name: Guardar reporte
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: glifing-report-${{ github.run_number }}
+          path: debug/reports/*.json
+          if-no-files-found: ignore
+          retention-days: 14
