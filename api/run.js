@@ -18,9 +18,9 @@ module.exports = async function handler(req, res) {
   const colegio = String(body.colegio || 'ALL').trim() || 'ALL';
   const mode = body.mode === 'write' ? 'write' : 'validate';
 
-  if (mode === 'write' && String(process.env.ALLOW_WRITE || '').toLowerCase() !== 'true') {
+  if (mode === 'write' && colegio === 'ALL') {
     return res.status(403).json({
-      error: 'La escritura está bloqueada por seguridad. Configurá ALLOW_WRITE=true en Vercel cuando quieras habilitarla.'
+      error: 'Por seguridad, la primera escritura debe hacerse con un solo colegio. Elegí AMEGHINO y volvé a ejecutar.'
     });
   }
 
