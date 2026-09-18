@@ -1,6 +1,6 @@
 'use strict';
 
-const MAX_LINEAS_LOG = 1000;
+const MAX_LINEAS_LOG = 300;
 
 const el = {
   badgeModo: document.getElementById('badgeModo'),
@@ -27,6 +27,11 @@ const el = {
   kpiStatusCard: document.getElementById('kpiStatusCard'),
   kpiStatusIcon: document.getElementById('kpiStatusIcon')
 };
+
+let cloudConfig = { ready: false, allowWrite: false };
+let colegiosDisponibles = [];
+let ultimoRun = null;
+let ultimaFirmaLog = '';
 
 async function fetchJson(url, options = {}) {
   const res = await fetch(url, options);
@@ -74,319 +79,308 @@ function formatearFechaHora(iso) {
   };
 }
 
-// ---------------------------------------------------------------------
-// Config + estado
-// ---------------------------------------------------------------------
+function agregarLog(mensaje, nivel = 'info') {
+  if (!el.logs) return;
 
-async function cargarEstado() {
-  try {
-    const data = await fetchJson('/api/estado');
-    pintarModo(data.config || {});
-    pintarConfig(data.config || {});
-    pintarRunner(data.runner || {});
-  } catch (err) {
-    console.error('No se pudo cargar /api/estado', err);
-    if (el.kpiEstado) el.kpiEstado.textContent = 'Sin conexión';
-    if (el.kpiEstadoSub) {
-      el.kpiEstadoSub.innerHTML = '<span class="status-dot"></span>No se pudo leer el servidor';
-    }
-    if (el.kpiStatusCard) el.kpiStatusCard.className = 'kpi-card kpi-card--status error';
+  if (el.logs.querySelector('.logs__vacio')) {
+    el.logs.innerHTML = '';
   }
+
+  const linea = document.createElement('div');
+  linea.className = 'linea ' + nivel;
+  const hora = new Date().toLocaleTimeString('es-AR', { hour12: false });
+  linea.textContent = `[${hora}] [${nivel.toUpperCase()}] ${mensaje}`;
+  el.logs.appendChild(linea);
+
+  while (el.logs.children.length > MAX_LINEAS_LOG) {
+    el.logs.removeChild(el.logs.firstChild);
+  }
+
+  el.logs.scrollTop = el.logs.scrollHeight;
 }
 
-function pintarModo(cfg) {
-  if (!el.badgeModo) return;
-
-  if (cfg.dryRun) {
-    el.badgeModo.textContent = 'Modo validación';
-    el.badgeModo.className = 'badge-modo validacion';
-  } else {
-    el.badgeModo.textContent = 'Modo producción';
-    el.badgeModo.className = 'badge-modo produccion';
-  }
-}
-
-function itemEstado(ok, texto) {
-  const clase = ok ? 'ok' : 'error';
+function itemEstado(ok, texto, warn = false) {
+  const clase = warn ? 'warn' : (ok ? 'ok' : 'error');
   return `<li><span class="punto ${clase}"></span>${escapeHtml(texto)}</li>`;
 }
 
-function pintarConfig(cfg) {
-  if (!el.listaEstadoConfig) return;
-
-  const glifing = cfg.glifing || {};
-  const googleSheets = cfg.googleSheets || {};
-
-  const items = [
-    itemEstado(Boolean(glifing.userConfigured), 'Usuario de Glifing configurado'),
-    itemEstado(Boolean(glifing.passwordConfigured), 'Contraseña de Glifing configurada'),
-    itemEstado(Boolean(googleSheets.spreadsheetIdConfigured), 'Google Sheet configurado'),
-    itemEstado(Boolean(googleSheets.serviceAccountKeyConfigured), 'Service account configurada'),
-    `<li><span class="punto ${cfg.headless ? 'ok' : 'warn'}"></span>Chromium ${cfg.headless ? 'headless' : 'visible'}</li>`
-  ];
-
-  el.listaEstadoConfig.innerHTML = items.join('');
+function parseRunTitle(title) {
+  const partes = String(title || '').split('·').map((x) => x.trim());
+  return {
+    mode: partes[1] || '',
+    colegio: partes[2] || ''
+  };
 }
 
-function pintarRunner(runnerState) {
-  const corriendo = Boolean(runnerState.running);
-  const procesados = Array.isArray(runnerState.colegiosProcesados)
-    ? runnerState.colegiosProcesados
-    : [];
-  const errores = Array.isArray(runnerState.erroresGlobales)
-    ? runnerState.erroresGlobales
-    : [];
-
-  if (el.estadoRun) {
-    el.estadoRun.className = 'status-accessible' + (corriendo ? ' corriendo' : '');
-  }
-
-  if (el.estadoRunTexto) {
-    el.estadoRunTexto.textContent = corriendo
-      ? `Procesando: ${runnerState.colegioActual || '...'}`
-      : (runnerState.finishedAt ? 'Última ejecución finalizada' : 'Inactivo');
-  }
-
-  if (el.btnValidar) el.btnValidar.disabled = corriendo;
-  if (el.btnEscribir) el.btnEscribir.disabled = corriendo;
-  if (el.btnDetener) el.btnDetener.disabled = !corriendo;
-
-  pintarKpis(runnerState, procesados, errores);
-  pintarErrores(errores);
-  pintarTablaColegios(procesados);
+function conclusionTexto(conclusion) {
+  const mapa = {
+    success: 'Finalizado',
+    failure: 'Con errores',
+    cancelled: 'Cancelado',
+    timed_out: 'Tiempo agotado',
+    skipped: 'Omitido'
+  };
+  return mapa[conclusion] || 'Finalizado';
 }
 
-function pintarKpis(runnerState, procesados, errores) {
-  if (el.kpiProcesados) el.kpiProcesados.textContent = String(procesados.length);
+async function cargarConfig() {
+  try {
+    cloudConfig = await fetchJson('/api/config');
 
-  const referencia = runnerState.finishedAt || runnerState.startedAt;
-  const ultima = formatearFechaHora(referencia);
+    if (el.badgeModo) {
+      el.badgeModo.textContent = 'Ejecución en la nube';
+      el.badgeModo.className = 'badge-modo validacion';
+    }
 
-  if (el.kpiUltimaEjecucion) {
-    el.kpiUltimaEjecucion.textContent = ultima ? ultima.fecha : 'Sin datos';
+    if (el.listaEstadoConfig) {
+      el.listaEstadoConfig.innerHTML = [
+        itemEstado(true, 'Panel alojado en Vercel'),
+        itemEstado(Boolean(cloudConfig.ready), 'Conexión con GitHub Actions configurada'),
+        itemEstado(Boolean(cloudConfig.allowWrite), cloudConfig.allowWrite ? 'Escritura habilitada' : 'Escritura bloqueada por seguridad', !cloudConfig.allowWrite),
+        itemEstado(true, 'Chromium se ejecuta en GitHub Actions')
+      ].join('');
+    }
+
+    actualizarBotones(false);
+  } catch (err) {
+    cloudConfig = { ready: false, allowWrite: false };
+    agregarLog('No se pudo leer la configuración de Vercel: ' + err.message, 'error');
   }
-  if (el.kpiUltimaHora) {
-    el.kpiUltimaHora.textContent = ultima ? ultima.hora : '—';
-  }
-
-  if (!el.kpiEstado || !el.kpiEstadoSub || !el.kpiStatusCard) return;
-
-  if (runnerState.running) {
-    el.kpiEstado.textContent = 'Procesando…';
-    el.kpiEstadoSub.innerHTML = `<span class="status-dot"></span>${escapeHtml(runnerState.colegioActual || 'En ejecución')}`;
-    el.kpiStatusCard.className = 'kpi-card kpi-card--status running';
-    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '◷';
-    return;
-  }
-
-  if (errores.length > 0) {
-    el.kpiEstado.textContent = 'Con alertas';
-    el.kpiEstadoSub.innerHTML = `<span class="status-dot"></span>${errores.length} error${errores.length === 1 ? '' : 'es'} registrado${errores.length === 1 ? '' : 's'}`;
-    el.kpiStatusCard.className = 'kpi-card kpi-card--status error';
-    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '!';
-    return;
-  }
-
-  if (runnerState.finishedAt) {
-    el.kpiEstado.textContent = 'Finalizado';
-    el.kpiEstadoSub.innerHTML = '<span class="status-dot"></span>Ejecución completada';
-    el.kpiStatusCard.className = 'kpi-card kpi-card--status running';
-    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '✓';
-    return;
-  }
-
-  el.kpiEstado.textContent = 'Inactivo';
-  el.kpiEstadoSub.innerHTML = '<span class="status-dot"></span>Sin ejecución activa';
-  el.kpiStatusCard.className = 'kpi-card kpi-card--status';
-  if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '◷';
 }
-
-function pintarErrores(errores) {
-  if (!el.erroresGlobales) return;
-
-  if (!errores.length) {
-    el.erroresGlobales.innerHTML = '';
-    return;
-  }
-
-  el.erroresGlobales.innerHTML =
-    '<table class="tabla"><thead><tr><th>Colegio</th><th>Error</th></tr></thead><tbody>' +
-    errores
-      .map((e) => `<tr><td>${escapeHtml(e.colegio || '(general)')}</td><td>${escapeHtml(e.mensaje)}</td></tr>`)
-      .join('') +
-    '</tbody></table>';
-}
-
-function pintarTablaColegios(lista) {
-  if (!el.tablaColegios) return;
-
-  if (!lista.length) {
-    el.tablaColegios.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state__icon">▤</div>
-        <strong>Todavía no hay datos de esta ejecución.</strong>
-        <span>Cuando se procesen colegios, vas a ver el detalle acá.</span>
-      </div>`;
-    return;
-  }
-
-  el.tablaColegios.innerHTML =
-    '<table class="tabla"><thead><tr><th>Colegio</th><th>Estado</th></tr></thead><tbody>' +
-    lista
-      .map((c) => `<tr><td>${escapeHtml(c.pestana)}</td><td><span class="chip ${escapeHtml(c.estado)}">${escapeHtml(c.estado)}</span></td></tr>`)
-      .join('') +
-    '</tbody></table>';
-}
-
-// ---------------------------------------------------------------------
-// Colegios
-// ---------------------------------------------------------------------
 
 async function cargarColegios() {
   try {
     const data = await fetchJson('/api/colegios');
-    const pestanas = Array.isArray(data.pestanas) ? data.pestanas : [];
+    colegiosDisponibles = Array.isArray(data.pestanas) ? data.pestanas : [];
 
     const opciones = ['<option value="ALL">Todos los colegios</option>']
       .concat(
-        pestanas.map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`)
+        colegiosDisponibles.map(
+          (p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`
+        )
       );
 
-    el.selectColegio.innerHTML = opciones.join('');
-    if (el.kpiColegios) el.kpiColegios.textContent = String(pestanas.length);
+    if (el.selectColegio) el.selectColegio.innerHTML = opciones.join('');
+    if (el.kpiColegios) el.kpiColegios.textContent = String(colegiosDisponibles.length);
   } catch (err) {
-    console.warn('No se pudieron cargar los colegios todavía:', err.message);
     if (el.kpiColegios) el.kpiColegios.textContent = '—';
+    agregarLog('No se pudo cargar la lista de colegios: ' + err.message, 'error');
   }
 }
 
-// ---------------------------------------------------------------------
-// Acciones
-// ---------------------------------------------------------------------
+function actualizarBotones(corriendo) {
+  if (el.btnValidar) el.btnValidar.disabled = corriendo || !cloudConfig.ready;
+  if (el.btnEscribir) el.btnEscribir.disabled = corriendo || !cloudConfig.ready || !cloudConfig.allowWrite;
+  if (el.btnDetener) el.btnDetener.disabled = !corriendo;
+}
 
-el.btnValidar?.addEventListener('click', async () => {
-  const colegio = el.selectColegio.value;
-  el.btnValidar.disabled = true;
+function pintarEstado(data) {
+  const run = data?.run || null;
+  ultimoRun = run;
+
+  if (!run) {
+    if (el.estadoRunTexto) el.estadoRunTexto.textContent = 'Inactivo';
+    if (el.kpiEstado) el.kpiEstado.textContent = 'Inactivo';
+    if (el.kpiEstadoSub) el.kpiEstadoSub.innerHTML = '<span class="status-dot"></span>Sin ejecución activa';
+    if (el.kpiStatusCard) el.kpiStatusCard.className = 'kpi-card kpi-card--status';
+    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '◷';
+    if (el.kpiProcesados) el.kpiProcesados.textContent = '0';
+    actualizarBotones(false);
+    pintarTabla(null);
+    return;
+  }
+
+  const corriendo = run.status === 'queued' || run.status === 'in_progress';
+  const datosTitulo = parseRunTitle(run.title);
+  const colegio = datosTitulo.colegio || '—';
+  const ultima = formatearFechaHora(run.updatedAt || run.createdAt);
+
+  if (el.kpiUltimaEjecucion) el.kpiUltimaEjecucion.textContent = ultima ? ultima.fecha : 'Sin datos';
+  if (el.kpiUltimaHora) el.kpiUltimaHora.textContent = ultima ? ultima.hora : '—';
+
+  if (corriendo) {
+    const texto = run.status === 'queued'
+      ? 'En cola…'
+      : (run.currentStep || 'Procesando…');
+
+    if (el.estadoRunTexto) el.estadoRunTexto.textContent = texto;
+    if (el.kpiEstado) el.kpiEstado.textContent = run.status === 'queued' ? 'En cola…' : 'Procesando…';
+    if (el.kpiEstadoSub) {
+      el.kpiEstadoSub.innerHTML = `<span class="status-dot"></span>${escapeHtml(colegio)}`;
+    }
+    if (el.kpiStatusCard) el.kpiStatusCard.className = 'kpi-card kpi-card--status running';
+    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '◷';
+    if (el.kpiProcesados) el.kpiProcesados.textContent = '0';
+
+    actualizarBotones(true);
+  } else {
+    const ok = run.conclusion === 'success';
+    const estado = conclusionTexto(run.conclusion);
+
+    if (el.estadoRunTexto) el.estadoRunTexto.textContent = estado;
+    if (el.kpiEstado) el.kpiEstado.textContent = estado;
+    if (el.kpiEstadoSub) {
+      el.kpiEstadoSub.innerHTML = `<span class="status-dot"></span>${escapeHtml(colegio)}`;
+    }
+    if (el.kpiStatusCard) {
+      el.kpiStatusCard.className = 'kpi-card kpi-card--status ' + (ok ? 'running' : 'error');
+    }
+    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = ok ? '✓' : '!';
+    if (el.kpiProcesados) {
+      el.kpiProcesados.textContent = ok
+        ? (colegio === 'ALL' ? String(colegiosDisponibles.length || '—') : '1')
+        : '0';
+    }
+
+    actualizarBotones(false);
+  }
+
+  pintarTabla(run);
+  registrarCambioEstado(run);
+}
+
+function registrarCambioEstado(run) {
+  if (!run) return;
+
+  const firma = [run.id, run.status, run.conclusion, run.currentStep].join('|');
+  if (firma === ultimaFirmaLog) return;
+  ultimaFirmaLog = firma;
+
+  const { colegio, mode } = parseRunTitle(run.title);
+
+  if (run.status === 'queued') {
+    agregarLog(`Ejecución enviada a GitHub Actions · ${colegio || 'ALL'} · ${mode || 'validate'}`);
+  } else if (run.status === 'in_progress') {
+    agregarLog(run.currentStep ? `GitHub Actions: ${run.currentStep}` : 'GitHub Actions está procesando la ejecución.');
+  } else if (run.conclusion === 'success') {
+    agregarLog('Ejecución finalizada correctamente.', 'ok');
+  } else if (run.conclusion === 'cancelled') {
+    agregarLog('Ejecución cancelada.', 'warn');
+  } else {
+    agregarLog(`La ejecución terminó con estado: ${conclusionTexto(run.conclusion)}.`, 'error');
+  }
+}
+
+function pintarTabla(run) {
+  if (!el.tablaColegios) return;
+
+  if (!run) {
+    el.tablaColegios.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state__icon">▤</div>
+        <strong>Todavía no hay datos de esta ejecución.</strong>
+        <span>Cuando ejecutes el bot, vas a ver el estado acá.</span>
+      </div>`;
+    return;
+  }
+
+  const { colegio, mode } = parseRunTitle(run.title);
+  const estado = run.status === 'completed'
+    ? conclusionTexto(run.conclusion)
+    : (run.status === 'queued' ? 'En cola' : 'Procesando');
+
+  el.tablaColegios.innerHTML = `
+    <table class="tabla">
+      <thead>
+        <tr><th>Colegio</th><th>Modo</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${escapeHtml(colegio || 'ALL')}</td>
+          <td>${escapeHtml(mode === 'write' ? 'Escritura' : 'Validación')}</td>
+          <td><span class="chip ${run.conclusion === 'success' ? 'PROCESADO' : ''}">${escapeHtml(estado)}</span></td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+
+async function cargarEstado() {
+  try {
+    const data = await fetchJson('/api/status');
+    pintarEstado(data);
+
+    if (el.erroresGlobales) {
+      el.erroresGlobales.innerHTML = '';
+    }
+  } catch (err) {
+    actualizarBotones(false);
+
+    if (el.kpiEstado) el.kpiEstado.textContent = 'Sin conexión';
+    if (el.kpiEstadoSub) {
+      el.kpiEstadoSub.innerHTML = '<span class="status-dot"></span>Falta conectar Vercel con GitHub';
+    }
+    if (el.kpiStatusCard) el.kpiStatusCard.className = 'kpi-card kpi-card--status error';
+    if (el.kpiStatusIcon) el.kpiStatusIcon.textContent = '!';
+  }
+}
+
+async function ejecutar(mode) {
+  const colegio = el.selectColegio?.value || 'ALL';
+
+  if (mode === 'write') {
+    const nombre = colegio === 'ALL' ? 'TODOS los colegios' : colegio;
+    const confirmado = confirm(
+      `Vas a ESCRIBIR de verdad en Google Sheets para: ${nombre}.\n\n¿Confirmás que querés continuar?`
+    );
+    if (!confirmado) return;
+  }
+
+  actualizarBotones(true);
+  agregarLog(`Solicitando ejecución para ${colegio}…`);
 
   try {
     await fetchJson('/api/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ colegio, mode: 'validate' })
+      body: JSON.stringify({ colegio, mode })
     });
-    await cargarEstado();
+
+    agregarLog('Solicitud aceptada por Vercel. GitHub Actions va a iniciar la ejecución.');
+    setTimeout(cargarEstado, 1800);
   } catch (err) {
+    agregarLog(err.message, 'error');
     alert(err.message);
-    el.btnValidar.disabled = false;
+    actualizarBotones(false);
   }
-});
+}
 
-el.btnEscribir?.addEventListener('click', async () => {
-  const colegio = el.selectColegio.value;
-  const nombreColegio = colegio === 'ALL' ? 'TODOS los colegios' : colegio;
-  const confirmado = confirm(
-    `Vas a ESCRIBIR de verdad en Google Sheets para: ${nombreColegio}.\n\n` +
-    'Esto modifica la planilla real. ¿Confirmás que querés continuar?'
-  );
-
-  if (!confirmado) return;
-
-  el.btnValidar.disabled = true;
-  el.btnEscribir.disabled = true;
-
-  try {
-    await fetchJson('/api/run', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ colegio, mode: 'write' })
-    });
-    await cargarEstado();
-  } catch (err) {
-    alert(err.message);
-    el.btnValidar.disabled = false;
-    el.btnEscribir.disabled = false;
-  }
-});
+el.btnValidar?.addEventListener('click', () => ejecutar('validate'));
+el.btnEscribir?.addEventListener('click', () => ejecutar('write'));
 
 el.btnDetener?.addEventListener('click', async () => {
   el.btnDetener.disabled = true;
+
   try {
     await fetchJson('/api/stop', { method: 'POST' });
+    agregarLog('Se solicitó cancelar la ejecución en GitHub Actions.', 'warn');
+    setTimeout(cargarEstado, 1200);
   } catch (err) {
     alert(err.message);
   }
 });
 
-async function limpiarLogs() {
-  try {
-    await fetchJson('/api/logs/clear', { method: 'POST' });
-    el.logs.innerHTML = '<div class="logs__vacio">Logs limpiados.</div>';
-  } catch (err) {
-    alert('No se pudieron limpiar los logs: ' + err.message);
-  }
+function limpiarLogs() {
+  if (el.logs) el.logs.innerHTML = '<div class="logs__vacio">Sin actividad todavía.</div>';
+  ultimaFirmaLog = '';
 }
 
 el.btnLimpiarLogs?.addEventListener('click', limpiarLogs);
 el.btnLimpiarLogsTop?.addEventListener('click', limpiarLogs);
 
-async function descargarUltimoReporte() {
-  try {
-    const data = await fetchJson('/api/reportes');
-    if (!data.archivos || data.archivos.length === 0) {
-      alert('Todavía no hay ningún reporte generado.');
-      return;
-    }
-    window.location.href = '/api/reportes/' + encodeURIComponent(data.archivos[0]);
-  } catch (err) {
-    alert('No se pudo obtener el último reporte: ' + err.message);
+function abrirUltimaEjecucion() {
+  if (!ultimoRun?.url) {
+    alert('Todavía no hay una ejecución disponible.');
+    return;
   }
+  window.open(ultimoRun.url, '_blank', 'noopener,noreferrer');
 }
 
-el.btnDescargarReporte?.addEventListener('click', descargarUltimoReporte);
-el.btnVerReporte?.addEventListener('click', descargarUltimoReporte);
+el.btnDescargarReporte?.addEventListener('click', abrirUltimaEjecucion);
+el.btnVerReporte?.addEventListener('click', abrirUltimaEjecucion);
 
-// ---------------------------------------------------------------------
-// Logs en vivo (SSE)
-// ---------------------------------------------------------------------
-
-function iniciarStreamLogs() {
-  const origen = new EventSource('/api/logs/stream');
-  let primerMensaje = true;
-
-  origen.onmessage = (evento) => {
-    if (primerMensaje) {
-      el.logs.innerHTML = '';
-      primerMensaje = false;
-    }
-
-    try {
-      const entrada = JSON.parse(evento.data);
-      const nivel = String(entrada.nivel || 'info').toLowerCase();
-      const linea = document.createElement('div');
-      linea.className = 'linea ' + nivel;
-      linea.textContent = `[${entrada.timestamp}] [${String(entrada.nivel || 'INFO').toUpperCase()}] ${entrada.mensaje}`;
-      el.logs.appendChild(linea);
-
-      while (el.logs.children.length > MAX_LINEAS_LOG) {
-        el.logs.removeChild(el.logs.firstChild);
-      }
-
-      el.logs.scrollTop = el.logs.scrollHeight;
-    } catch (_) {
-      // Se ignoran mensajes SSE que no sean JSON válido.
-    }
-  };
-
-  origen.onerror = () => {
-    // EventSource reintenta automáticamente.
-  };
-}
-
-// ---------------------------------------------------------------------
-// Arranque
-// ---------------------------------------------------------------------
-
-cargarEstado();
-cargarColegios();
-iniciarStreamLogs();
-setInterval(cargarEstado, 3000);
+(async function iniciar() {
+  await cargarConfig();
+  await cargarColegios();
+  await cargarEstado();
+  setInterval(cargarEstado, 5000);
+})();
