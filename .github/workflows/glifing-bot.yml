@@ -39,13 +39,19 @@ jobs:
       RUN_MODE: ${{ inputs.mode }}
       HEADLESS: "true"
       TZ_REPORTES: America/Argentina/Buenos_Aires
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
 
+      - name: Verificar entorno
+        run: |
+          node --version
+          npm --version
+
       - name: Instalar dependencias
-        run: npm install --omit=dev
+        run: npm install --omit=dev --no-audit --no-fund
 
       - name: Ejecutar Glifing Bot
         run: node src/actionRunner.js
