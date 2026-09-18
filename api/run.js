@@ -2,8 +2,6 @@
 
 const { OWNER, REPO, WORKFLOW, githubHeaders } = require('./_github');
 
-const MIGRATION_WRITE_LOCK = true;
-
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
@@ -19,12 +17,6 @@ module.exports = async function handler(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const colegio = String(body.colegio || 'ALL').trim() || 'ALL';
   const mode = body.mode === 'write' ? 'write' : 'validate';
-
-  if (mode === 'write' && MIGRATION_WRITE_LOCK) {
-    return res.status(403).json({
-      error: 'La escritura está bloqueada temporalmente hasta completar una validación exitosa con GitHub Actions.'
-    });
-  }
 
   if (mode === 'write' && String(process.env.ALLOW_WRITE || '').toLowerCase() !== 'true') {
     return res.status(403).json({
