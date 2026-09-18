@@ -6,15 +6,6 @@ const path = require('path');
 const mode = process.env.RUN_MODE === 'write' ? 'write' : 'validate';
 const colegio = process.env.COLEGIO || 'ALL';
 
-// Barrera de seguridad durante la migración a GitHub Actions.
-// Aunque un frontend viejo envíe "write", no se permite escribir hasta
-// habilitarlo explícitamente después de una validación completa exitosa.
-if (mode === 'write' && process.env.ENABLE_GITHUB_WRITE !== 'true') {
-  throw new Error(
-    'ESCRITURA_BLOQUEADA_MIGRACION: primero debe completarse una validación exitosa en GitHub Actions.'
-  );
-}
-
 process.env.DRY_RUN = mode === 'write' ? 'false' : 'true';
 process.env.HEADLESS = 'true';
 
