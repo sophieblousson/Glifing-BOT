@@ -242,7 +242,7 @@ function pintarEstado(data) {
 function registrarCambioEstado(run) {
   if (!run) return;
 
-  const firma = [run.id, run.status, run.conclusion, run.currentStep].join('|');
+  const firma = [run.id, run.status, run.conclusion, run.currentStep, run.failedStep, run.errorSummary].join('|');
   if (firma === ultimaFirmaLog) return;
   ultimaFirmaLog = firma;
 
@@ -257,7 +257,10 @@ function registrarCambioEstado(run) {
   } else if (run.conclusion === 'cancelled') {
     agregarLog('Ejecución cancelada.', 'warn');
   } else {
-    agregarLog(`La ejecución terminó con estado: ${conclusionTexto(run.conclusion)}.`, 'error');
+    const detalle = run.errorSummary
+      ? ` Motivo: ${run.errorSummary}`
+      : (run.failedStep ? ` Falló en: ${run.failedStep}.` : '');
+    agregarLog(`La ejecución terminó con estado: ${conclusionTexto(run.conclusion)}.${detalle}`, 'error');
   }
 }
 
