@@ -90,13 +90,13 @@
           </button>
 
           <button id="btnDescargarReporte" class="btn btn--secondary" type="button">
-            <span class="btn__icon">↓</span><span>Descargar último reporte</span>
+            <span class="btn__icon">↓</span><span>Ver última ejecución</span>
           </button>
         </div>
 
         <div class="safety-note" id="notaEscritura">
           <div class="info-badge">i</div>
-          <p><strong>“Ejecutar y escribir”</strong> modifica Google Sheets de forma real. Requiere <code>DRY_RUN=false</code> y confirmación antes de comenzar.</p>
+          <p><strong>“Ejecutar y escribir”</strong> modifica Google Sheets de forma real. La escritura permanece bloqueada hasta habilitar <code>ALLOW_WRITE=true</code> en Vercel y siempre pide confirmación.</p>
         </div>
 
         <details class="config-details">
@@ -203,7 +203,7 @@
             <div class="section-icon section-icon--blue">●●</div>
             <h2>Colegios procesados en esta ejecución</h2>
           </div>
-          <button id="btnVerReporte" class="mini-btn" type="button">▥&nbsp;&nbsp;Ver reporte completo</button>
+          <button id="btnVerReporte" class="mini-btn" type="button">▥&nbsp;&nbsp;Ver ejecución en GitHub</button>
         </div>
 
         <div id="tablaColegios" class="processed-content" aria-live="polite">
