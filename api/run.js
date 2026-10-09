@@ -18,12 +18,6 @@ module.exports = async function handler(req, res) {
   const colegio = String(body.colegio || 'ALL').trim() || 'ALL';
   const mode = body.mode === 'write' ? 'write' : 'validate';
 
-  if (mode === 'write' && colegio === 'ALL') {
-    return res.status(403).json({
-      error: 'Por seguridad, la primera escritura debe hacerse con un solo colegio. Elegí AMEGHINO y volvé a ejecutar.'
-    });
-  }
-
   const activosUrl = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=10`;
   const activosRes = await fetch(activosUrl, { headers });
 
